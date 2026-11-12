@@ -2,7 +2,7 @@
 ## Analyste financier — Corporate finance & financement de projets (double compétence finance / droit)
 
 **Profil** — MSc Finance d'Entreprise (ICN Business School) + DU Droit des entreprises en difficulté (Université Paris 1 Panthéon-Sorbonne). 5 ans d'expérience entre la direction financière du Groupe SNCF (alternance), le conseil aux directions financières de grands groupes chez Deloitte, et le pilotage de la restructuration de dette publique d'entreprises en difficulté à la DGFiP (CIRI, CCSF, CDED).
-**Objectif** — poste en financement d'entreprises / financement de projets / financement de filiales, prioritairement au sein du Groupe SNCF. CDI, Paris / Île-de-France (télétravail partiel accepté).
+**Objectif** — poste en financement d'entreprises / de projets / de filiales, en grand groupe industriel, banque ou organisme public. CDI, Paris / Île-de-France (télétravail partiel accepté).
 **Contact** — LinkedIn : https://www.linkedin.com/in/hugo-andre- — Français natif, anglais professionnel (B2)
 
 ## Compétences clés
@@ -45,5 +45,5 @@ Cabinet d'avocats Desforges-Thierry — 2022 (6 mois)
 
 ## Cibles de recherche (note pour l'agent de veille)
 - Postes : corporate finance, financement de projets / filiales / participations, analyste financier ou crédit, contrôle de gestion, trésorerie, FP&A, juriste financements
-- Employeurs : Groupe SNCF (emploi.sncf.com), CAC 40 / ETI industriels, banques, Big Four, Bpifrance, secteur public/parapublic
+- Employeurs : grands groupes industriels (CAC 40 / ETI, ex. Groupe SNCF), banques et établissements financiers, cabinets Big Four, Bpifrance, secteur public/parapublic
 - Zone : Paris / Île-de-France, CDI
