@@ -30,8 +30,9 @@ Mission : avec la recherche web, trouve des offres d'emploi publiées dans les d
 postes de corporate finance, financement de projets, financement de filiales/participations, analyste financier, \
 analyste crédit, contrôleur de gestion/financier, trésorerie, FP&A, juriste financements, conseil financier/audit, \
 et postes du secteur public/parapublic (financement et restructuration d'entreprises). \
-Employeurs cibles : Groupe SNCF et ses filiales, grands groupes industriels (CAC 40 / ETI), banques et établissements \
-financiers, cabinets de conseil/audit (Big Four), Bpifrance et organismes publics.
+Employeurs : grands groupes industriels (CAC 40 / ETI, ex. Groupe SNCF), banques et établissements financiers, \
+cabinets de conseil/audit (Big Four), Bpifrance et organismes publics. \
+Effectue au maximum 4 recherches web au total, puis réponds immédiatement.
 
 Sources à privilégier : emploi.sncf.com, Welcome to the Jungle, APEC, LinkedIn, Indeed, France Travail, Les Jeudis, \
 HelloWork, Wizbii, le portail talents de Bpifrance, passerelles.economie.gouv.fr, Robert Half. \
@@ -96,22 +97,45 @@ def _texte_sortie(outputs) -> str:
 
 
 def _extraire_json(texte: str) -> dict:
-    match = re.search(r"\{.*\}", texte, re.DOTALL)
-    if not match:
-        raise ValueError(f"Aucun objet JSON trouvé dans la réponse de l'agent : {texte[:500]}")
-    return json.loads(match.group())
+    texte = re.sub(r"```(?:json)?", "", texte)
+    debut = texte.find("{")
+    while debut != -1:
+        profondeur = 0
+        for i in range(debut, len(texte)):
+            if texte[i] == "{":
+                profondeur += 1
+            elif texte[i] == "}":
+                profondeur -= 1
+                if profondeur == 0:
+                    try:
+                        data = json.loads(texte[debut : i + 1])
+                    except ValueError:
+                        break
+                    if isinstance(data, dict):
+                        return data
+                    break
+        debut = texte.find("{", debut + 1)
+    raise ValueError(f"Aucun objet JSON valide trouvé dans la réponse de l'agent : {texte[:500]}")
 
 
-async def _demander_au_modele(prompt: str, avec_recherche_web: bool = False) -> str:
+async def _demander_au_modele(prompt: str, avec_recherche_web: bool = False, max_tentatives: int = 4) -> str:
     client = wm.get_mistral_client()
     outils = [WebSearchTool()] if avec_recherche_web else []
-    conversation = await client.beta.conversations.start_async(
-        inputs=prompt,
-        model=os.environ.get("VEILLE_MODEL", MODELE_PAR_DEFAUT),
-        instructions=INSTRUCTIONS_AGENT,
-        tools=outils,
-    )
-    return _texte_sortie(conversation.outputs)
+    for tentative in range(1, max_tentatives + 1):
+        try:
+            conversation = await client.beta.conversations.start_async(
+                inputs=prompt,
+                model=os.environ.get("VEILLE_MODEL", MODELE_PAR_DEFAUT),
+                instructions=INSTRUCTIONS_AGENT,
+                tools=outils,
+            )
+            return _texte_sortie(conversation.outputs)
+        except Exception as exc:
+            if "429" in str(exc) and tentative < max_tentatives:
+                await asyncio.sleep(45 * tentative)
+                workflows.activity_heartbeat()
+                continue
+            raise
 
 
 @workflows.activity()
