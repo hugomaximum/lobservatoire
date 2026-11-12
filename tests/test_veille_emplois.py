@@ -117,3 +117,19 @@ async def test_reponse_numero_choisit_l_offre(temporal_env):
 async def test_reponse_non_ne_fait_rien(temporal_env):
     result = await _lancer_et_repondre(temporal_env, "non")
     assert "aucune candidature" in str(result).lower()
+
+
+class TestExtraireJson:
+    def test_json_dans_fence_markdown(self):
+        from worker.workflows.veille_emplois import _extraire_json
+        assert _extraire_json('voici :\n```json\n{"offres": []}\n```') == {"offres": []}
+
+    def test_json_entoure_de_texte(self):
+        from worker.workflows.veille_emplois import _extraire_json
+        data = _extraire_json('Bla bla {"offres": [{"titre": "x", "score": 1}]} fin')
+        assert data["offres"][0]["titre"] == "x"
+
+    def test_json_imbrique(self):
+        from worker.workflows.veille_emplois import _extraire_json
+        data = _extraire_json('prose {"offres": [{"titre": "a", "resume": "b"}]}')
+        assert data["offres"][0]["resume"] == "b"
