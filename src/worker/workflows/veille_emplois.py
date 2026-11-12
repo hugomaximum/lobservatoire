@@ -25,9 +25,16 @@ PROMPT_RECHERCHE = """Date du jour : {date}.
 Voici le CV du candidat :
 {cv}
 
-Mission : avec la recherche web, trouve des offres d'emploi publiées dans les dernières 48 heures \
-qui correspondent au profil du candidat (poste, compétences, localisation, type de contrat, mobilité). \
-Sources à privilégier : Welcome to the Jungle, APEC, LinkedIn, Indeed, France Travail, Les Jeudis, HelloWork. \
+Mission : avec la recherche web, trouve des offres d'emploi publiées dans les dernières 48 heures en France \
+(priorité Île-de-France, télétravail partiel accepté). Cherche LARGEMENT, pas seulement l'intitulé exact du CV : \
+postes de corporate finance, financement de projets, financement de filiales/participations, analyste financier, \
+analyste crédit, contrôleur de gestion/financier, trésorerie, FP&A, juriste financements, conseil financier/audit, \
+et postes du secteur public/parapublic (financement et restructuration d'entreprises). \
+Employeurs cibles : Groupe SNCF et ses filiales, grands groupes industriels (CAC 40 / ETI), banques et établissements \
+financiers, cabinets de conseil/audit (Big Four), Bpifrance et organismes publics.
+
+Sources à privilégier : emploi.sncf.com, Welcome to the Jungle, APEC, LinkedIn, Indeed, France Travail, Les Jeudis, \
+HelloWork, Wizbii, le portail talents de Bpifrance, passerelles.economie.gouv.fr, Robert Half. \
 Cherche en français, et en anglais si le profil est anglophone.
 
 Retourne au maximum {max_offres} offres, classées par pertinence (score de 0 à 100), sous la forme d'UNIQUE objet JSON :
