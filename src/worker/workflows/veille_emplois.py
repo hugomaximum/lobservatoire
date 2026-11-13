@@ -25,20 +25,21 @@ PROMPT_RECHERCHE = """Date du jour : {date}.
 Voici le CV du candidat :
 {cv}
 
-Mission : avec la recherche web, trouve des offres d'emploi publiées dans les dernières 48 heures en France \
-(priorité Île-de-France, télétravail partiel accepté). Cherche LARGEMENT, pas seulement l'intitulé exact du CV : \
+Mission : avec la recherche web, trouve des offres d'emploi publiées dans les 7 derniers jours en France \
+(privilégie celles des dernières 48 heures ; priorité Île-de-France, télétravail partiel accepté). \
+Cherche LARGEMENT, pas seulement l'intitulé exact du CV : \
 postes de corporate finance, financement de projets, financement de filiales/participations, analyste financier, \
 analyste crédit, contrôleur de gestion/financier, trésorerie, FP&A, juriste financements, conseil financier/audit, \
 et postes du secteur public/parapublic (financement et restructuration d'entreprises). \
 Employeurs : grands groupes industriels (CAC 40 / ETI, ex. Groupe SNCF), banques et établissements financiers, \
 cabinets de conseil/audit (Big Four), Bpifrance et organismes publics. \
-Effectue au maximum 4 recherches web au total, puis réponds immédiatement.
+Effectue au maximum 6 recherches web au total, puis réponds immédiatement.
 
 Sources à privilégier : emploi.sncf.com, Welcome to the Jungle, APEC, LinkedIn, Indeed, France Travail, Les Jeudis, \
 HelloWork, Wizbii, le portail talents de Bpifrance, passerelles.economie.gouv.fr, Robert Half. \
 Cherche en français, et en anglais si le profil est anglophone.
 
-Retourne au maximum {max_offres} offres, classées par pertinence (score de 0 à 100), sous la forme d'UNIQUE objet JSON :
+Retourne au maximum {max_offres} offres (prends les plus pertinentes, même si la date dépasse 48h), classées par pertinence (score de 0 à 100), sous la forme d'UNIQUE objet JSON :
 {{"offres": [{{"titre": "...", "entreprise": "...", "lieu": "...", "type_contrat": "...", "salaire": "...", "url": "...", "email_contact": "...", "resume": "...", "score": 0}}]}}
 
 Pour chaque offre : titre exact, entreprise, lieu, type de contrat, salaire si mentionné, URL de l'offre, \
