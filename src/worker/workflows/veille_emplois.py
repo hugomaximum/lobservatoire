@@ -172,18 +172,21 @@ def _texte_reponse(reponse) -> str:
     return " ".join(parts).strip().lower()
 
 
-def parse_choix(texte: str, nb_offres: int) -> int | None:
+def parse_choix(texte: str, nb_offres: int) -> list[int]:
     if not texte or nb_offres <= 0:
-        return None
+        return []
     if re.search(r"\b(non|no|nop|rien|aucune|stop|pas)\b", texte):
-        return None
-    match = re.search(r"\d+", texte)
-    if match:
+        return []
+    indices: list[int] = []
+    for match in re.finditer(r"\d+", texte):
         index = int(match.group()) - 1
-        return index if 0 <= index < nb_offres else None
+        if 0 <= index < nb_offres and index not in indices:
+            indices.append(index)
+    if indices:
+        return sorted(indices)
     if re.search(r"\b(oui|yes|ok|go|vas[- ]y|d'accord|accord)\b", texte):
-        return 0
-    return None
+        return [0]
+    return []
 
 
 def formater_digest(offres: list[Offre], date_str: str) -> str:
@@ -202,7 +205,7 @@ def formater_digest(offres: list[Offre], date_str: str) -> str:
         lignes.append(f"   Pertinence : {offre.score}/100")
         lignes.append("")
     lignes.append(
-        "Réponds par le **numéro** de l'offre à laquelle postuler, **« oui »** pour la n°1, ou **« non »** pour ne rien faire."
+        "Réponds par le(s) **numéro(s)** des offres (ex. « 1 2 3 »), **« oui »** pour la n°1, ou **« non »** pour ne rien faire."
     )
     return "\n".join(lignes)
 
@@ -253,7 +256,7 @@ class VeilleEmploisWorkflow(workflows.InteractiveWorkflow):
         try:
             reponse = await self.wait_for_input(
                 wm.ChatInput(
-                    prompt="Numéro de l'offre à laquelle postuler (ou « oui » pour la n°1, « non » pour ne rien faire) :",
+                    prompt="Numéro(s) des offres visées (ex. « 1 2 3 »), « oui » pour la n°1, « non » pour ne rien faire :",
                     suggestions=[[wm.TextChunk(text="oui")], [wm.TextChunk(text="non")]],
                 ),
                 label="Choix de candidature",
@@ -267,16 +270,23 @@ class VeilleEmploisWorkflow(workflows.InteractiveWorkflow):
                 content=[wm.TextOutput(text="Délai de réponse dépassé, aucune candidature.")]
             )
 
-        index = parse_choix(_texte_reponse(reponse), len(offres))
-        if index is None:
+        indices = parse_choix(_texte_reponse(reponse), len(offres))
+        if not indices:
             await wm.send_assistant_message("👍 Compris, aucune candidature aujourd'hui.")
             return wm.ChatAssistantWorkflowOutput(
                 content=[wm.TextOutput(text="Aucune candidature (réponse négative ou non comprise).")]
             )
 
-        offre = offres[index]
-        brouillon = await rediger_brouillon(cv, offre.model_dump_json(), date_str)
-        await wm.send_assistant_message(formater_brouillon(offre, brouillon))
+        titres: list[str] = []
+        for index in indices:
+            offre = offres[index]
+            brouillon = await rediger_brouillon(cv, offre.model_dump_json(), date_str)
+            await wm.send_assistant_message(formater_brouillon(offre, brouillon))
+            titres.append(f"« {offre.titre} » ({offre.entreprise})")
         return wm.ChatAssistantWorkflowOutput(
-            content=[wm.TextOutput(text=f"Brouillon préparé pour « {offre.titre} » ({offre.entreprise}).")]
+            content=[
+                wm.TextOutput(
+                    text=f"Brouillon(s) préparé(s) pour {len(indices)} offre(s) : " + " ; ".join(titres)
+                )
+            ]
         )
