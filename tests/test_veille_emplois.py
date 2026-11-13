@@ -27,25 +27,31 @@ def _offre(i: int) -> Offre:
 
 class TestParseChoix:
     def test_oui_donne_la_premiere(self):
-        assert parse_choix("oui", 3) == 0
+        assert parse_choix("oui", 3) == [0]
 
     def test_numero(self):
-        assert parse_choix("la 2 svp", 3) == 1
+        assert parse_choix("la 2 svp", 3) == [1]
 
     def test_oui_avec_numero(self):
-        assert parse_choix("oui pour la 3", 3) == 2
+        assert parse_choix("oui pour la 3", 3) == [2]
 
     def test_non(self):
-        assert parse_choix("non merci", 3) is None
+        assert parse_choix("non merci", 3) == []
 
     def test_pas(self):
-        assert parse_choix("pas la 2", 3) is None
+        assert parse_choix("pas la 2", 3) == []
 
     def test_hors_limites(self):
-        assert parse_choix("la 9", 3) is None
+        assert parse_choix("la 9", 3) == []
 
     def test_vide(self):
-        assert parse_choix("", 3) is None
+        assert parse_choix("", 3) == []
+
+    def test_multi_selection(self):
+        assert parse_choix("oui 1 2 3", 3) == [0, 1, 2]
+
+    def test_multi_avec_doublon_et_hors_limite(self):
+        assert parse_choix("2 2 9 1", 3) == [0, 1]
 
 
 class TestMiseEnForme:
@@ -117,6 +123,12 @@ async def test_reponse_numero_choisit_l_offre(temporal_env):
 async def test_reponse_non_ne_fait_rien(temporal_env):
     result = await _lancer_et_repondre(temporal_env, "non")
     assert "aucune candidature" in str(result).lower()
+
+
+async def test_reponse_multi_genere_plusieurs_brouillons(temporal_env):
+    result = await _lancer_et_repondre(temporal_env, "1 2")
+    assert "Poste 1" in str(result) and "Poste 2" in str(result)
+    assert "2 offre(s)" in str(result)
 
 
 class TestExtraireJson:
